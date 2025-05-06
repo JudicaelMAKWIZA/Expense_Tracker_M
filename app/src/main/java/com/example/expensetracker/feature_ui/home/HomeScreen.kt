@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -138,7 +140,6 @@ fun CardItem(
                 amount = "CDF 30350",
                 imaget = R.drawable.ic_income
             )
-            Spacer(modifier = Modifier.size(8.dp))
             CardRowItem(
                 modifier = Modifier
                     .align(Alignment.CenterEnd),
@@ -152,7 +153,10 @@ fun CardItem(
 
 @Composable
 fun TransactionList(modifier: Modifier){
-    Column(modifier = modifier.padding(horizontal = 16.dp)){
+    Column(
+        modifier = modifier
+            .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState())){
         Box(modifier = Modifier.fillMaxWidth()){
             Text(
                 text = "Dernières Transactions",
