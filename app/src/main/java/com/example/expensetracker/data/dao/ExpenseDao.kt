@@ -23,3 +23,8 @@ interface ExpenseDao {
     suspend fun updateExpense(expenseEntity: ExpenseEntity)
 
 }
+
+
+interface ExpenseRepository {
+    fun getAllExpenses(): Flow<List<ExpenseEntity>>
+}

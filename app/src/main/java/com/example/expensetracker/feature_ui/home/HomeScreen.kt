@@ -2,6 +2,7 @@ package com.example.expensetracker.feature_ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,15 +15,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,17 +36,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.expensetracker.R
+import com.example.expensetracker.data.ExpenseDatabase
+import com.example.expensetracker.data.ExpenseRepositoryImpl
 import com.example.expensetracker.model.ExpenseEntity
 import com.example.expensetracker.ui.theme.Zinc
+import com.example.expensetracker.utils.Utils
 import com.example.expensetracker.widget.ExpenseTextView
 
 @Composable
-fun HomeScreen(){
-    val viewModel :HomeViewModel = HomeViewModelFactory(LocalContext.current).create(HomeViewModel::class.java)
+fun HomeScreen(navController: NavController){
+    val context = LocalContext.current
+    val dao = ExpenseDatabase.getDatabase(context).expenseDao()
+    val repository = ExpenseRepositoryImpl(dao)
+    val viewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory(repository)
+    )
     Surface(Modifier.fillMaxSize()) {
         ConstraintLayout (modifier = Modifier.fillMaxSize()){
-            val (nameRow, list, card, topBar) = createRefs()
+            val (nameRow, list, card, topBar, add) = createRefs()
             Image(painter = painterResource(id = R.drawable.ic_topbar), contentDescription = null,
                 modifier = Modifier.constrainAs(topBar){
                 top.linkTo(parent.top)
@@ -72,10 +88,7 @@ fun HomeScreen(){
                     modifier = Modifier.align(Alignment.CenterEnd)
                 )
             }
-            val state = viewModel.expenses.collectAsState(initial = emptyList())
-            val expenses = viewModel.getTotalExpense(state.value)
-            val income = viewModel.getTotalIncome(state.value)
-            val balance = viewModel.getBalance(state.value)
+            val uiState by viewModel.uiState.collectAsState()
             CardItem(modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp)
@@ -83,7 +96,7 @@ fun HomeScreen(){
                     top.linkTo(nameRow.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
-                }, balance, income, expenses)
+                }, balance = uiState.balance, income = uiState.totalIncome, expenses = uiState.totalExpense)
             TransactionList(modifier = Modifier
                 .fillMaxWidth()
                 .constrainAs(list) {
@@ -92,7 +105,22 @@ fun HomeScreen(){
                     end.linkTo(parent.end)
                     bottom.linkTo(parent.bottom)
                     height = Dimension.fillToConstraints
-                }, list = state.value, viewModel
+                }, list = uiState.expenses, viewModel
+            )
+            
+            Image(
+                painter = painterResource(id = R.drawable.ic_addbutton),
+                contentDescription = null,
+                modifier = Modifier
+                    .constrainAs(add){
+                        bottom.linkTo(parent.bottom, margin =(56).dp)
+                        end.linkTo(parent.end, margin = 16.dp)
+                    }
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        navController.navigate("/add")
+                    }
             )
         }
     }
@@ -130,7 +158,7 @@ fun CardItem(
                     text = balance ,
                     //style = Typography.headlineLarge,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
+                    //fontWeight = FontWeight.Bold,
                     color = Color.White,
                 )
             }
@@ -164,7 +192,11 @@ fun CardItem(
     }
 }
 @Composable
-fun TransactionList(modifier: Modifier, list: List<ExpenseEntity>, viewModel: HomeViewModel){
+fun TransactionList(
+    modifier: Modifier,
+    list: List<ExpenseEntity>,
+    viewModel: HomeViewModel
+){
     LazyColumn(
         modifier = modifier
             .padding(horizontal = 16.dp)
@@ -182,13 +214,18 @@ fun TransactionList(modifier: Modifier, list: List<ExpenseEntity>, viewModel: Ho
                 )
             }
         }
-        items(list) { item ->
+        items(items = list,
+            key = { item -> item.id ?: 0 }) { item ->
+            val icon = Utils.getItemIcon(item)
+            val amount = if (item.type == "Solde") item.amount else item.amount * -1
+
             TransactionItem(
                 title = item.title,
                 amount = item.amount.toString(),
-                icon = viewModel.getItemIcon(item),
-                date = item.date.toString(),
-                color = if (item.type == "Solde") Color.Green else Color.Red
+                icon = icon,
+                date = Utils.formatStringDateToMonthDayYear(item.date),
+                color = if (item.type == "Solde") Color.Green else Color.Red,
+                Modifier
             )
         }
     }
@@ -218,7 +255,14 @@ fun CardRowItem(modifier: Modifier, title: String, amount: String, imaget: Int) 
 }
 
 @Composable
-fun TransactionItem(title: String, amount: String, icon: Int, date: String, color: Color) {
+fun TransactionItem(
+    title: String,
+    amount: String,
+    icon: Int,
+    date: String,
+    color: Color,
+    modifier: Modifier
+){
     Box(modifier = Modifier
         .fillMaxWidth()
         .padding(vertical = 8.dp)) {
@@ -257,5 +301,5 @@ fun TransactionItem(title: String, amount: String, icon: Int, date: String, colo
 @Composable
 @Preview(showBackground = true)
 fun PreviewHomeScreen(){
-    HomeScreen()
+    HomeScreen(rememberNavController())
 }

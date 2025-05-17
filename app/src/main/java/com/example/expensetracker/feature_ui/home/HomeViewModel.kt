@@ -1,73 +1,46 @@
+// File: HomeViewModel.kt
 package com.example.expensetracker.feature_ui.home
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.example.expensetracker.R
-import com.example.expensetracker.data.ExpenseDatabase
-import com.example.expensetracker.data.dao.ExpenseDao
+import androidx.lifecycle.viewModelScope
+import com.example.expensetracker.data.HomeUiState
+import com.example.expensetracker.data.dao.ExpenseRepository
 import com.example.expensetracker.model.ExpenseEntity
+import com.example.expensetracker.utils.ExpenseType
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class HomeViewModel(dao: ExpenseDao) : ViewModel() {
-    val expenses = dao.getAllExpenses( )
-    fun getBalance(list: List<ExpenseEntity>): String {
-        var total = 0.0
-        list.forEach {
-            if (it.type == "Solde") {
-                total += it.amount
-            } else {
-                total -= it.amount
+class HomeViewModel(private val repository: ExpenseRepository) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState
+
+    init {
+        viewModelScope.launch {
+            repository.getAllExpenses().collect { list ->
+                _uiState.value = HomeUiState(
+                    expenses = list,
+                    totalIncome = calculateTotalByType(list, ExpenseType.INCOME),
+                    totalExpense = calculateTotalByType(list, ExpenseType.EXPENSE),
+                    balance = calculateBalance(list)
+                )
             }
         }
-        return "CDF ${total}"
     }
 
-    fun getTotalExpense(list: List<ExpenseEntity>): String {
-        var total = 0.0
-        list.forEach {
-            if (it.type == "Dépense") {
-                total += it.amount
-            }
-        }
-        return "CDF ${total}"
+    fun calculateTotalByType(list: List<ExpenseEntity>, type: ExpenseType): String {
+        val total = list
+            .filter { it.type == type.value }
+            .sumOf { it.amount }
+        return "CDF $total"
     }
 
-    fun getTotalIncome(list: List<ExpenseEntity>): String {
-        var total = 0.0
-        list.forEach {
-            if (it.type == "Solde") {
-                total += it.amount
-            }
+    fun calculateBalance(list: List<ExpenseEntity>): String {
+        val total = list.sumOf {
+            if (it.type == ExpenseType.INCOME.value) it.amount else -it.amount
         }
-        return "CDF ${total}"
-    }
-    fun getItemIcon(item:ExpenseEntity): Int{
-        if (item.category == "Paypal") {
-            return R.drawable.ic_paypal
-        } else if (item.category == "Netflix") {
-            return R.drawable.ic_netflix
-        }
-        else if (item.category == "Gameroom") {
-            return R.drawable.game
-        }
-        return R.drawable.ic_upwork
+        return "CDF $total"
     }
 }
-class HomeViewModelFactory(private val context: Context) : ViewModelProvider.Factory{
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            val dao = ExpenseDatabase.getDatabase(context).expenseDao()
-            @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(dao) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-
-}
-
-/*
-sealed class HomeUiEvent : UiEvent() {
-    data object OnAddExpenseClicked : HomeUiEvent()
-    data object OnAddIncomeClicked : HomeUiEvent()
-    data object OnSeeAllClicked : HomeUiEvent()
-}*/
