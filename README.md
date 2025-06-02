@@ -16,9 +16,8 @@ Mettre en œuvre les concepts clés de l’ingénierie logicielle (architecture 
   - Repository (abstraction de la source de données)
   - Factory (création des ViewModels)
   - DAO (encapsulation des requêtes)
-- **Principes SOLID** et autres : SRP, OCP, DRY, KISS…
 
-##  Stack Technique
+##  Composants & Technologies
 
 | Composant         | Technologie             |
 |-------------------|-------------------------|
@@ -50,10 +49,9 @@ app/
 
 ### Prérequis
 
-- Android Studio Giraffe (ou version ultérieure)
+- Android Studio Jellyfish (ou version ultérieure)
 - Android SDK 33+
-- Gradle 8.x
-- Un émulateur ou un appareil physique (API 26 minimum)
+- Un émulateur ou un appareil physique 
 
 ### Installation
 
@@ -84,6 +82,7 @@ app/
 - Sauvegarde distante (Firebase ou backend REST)
 - Authentification utilisateur
 - Mode sombre
+- Etc.
 
 ## 🪪 Licence
 
