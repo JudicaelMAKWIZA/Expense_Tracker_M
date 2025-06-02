@@ -1,12 +1,12 @@
-# 📱 Expense Tracker – Projet de Génie Logiciel
+#  Expense Tracker – Projet de Génie Logiciel
 
 **Application Android de gestion des dépenses personnelles, conçue comme exercice pratique d'application des principes de génie logiciel.**
 
-## 🧠 Objectif
+##  Objectif
 
 Mettre en œuvre les concepts clés de l’ingénierie logicielle (architecture en couches, séparation des responsabilités, design patterns, documentation, versionnement Git) dans une application concrète de suivi des dépenses.
 
-## 🏗️ Architecture & Design
+##  Architecture & Design
 
 - **Architecture :** MVVM (Model – View – ViewModel)
 - **Persistance :** Room (abstraction de SQLite) + DAO + Repository Pattern
@@ -18,7 +18,7 @@ Mettre en œuvre les concepts clés de l’ingénierie logicielle (architecture 
   - DAO (encapsulation des requêtes)
 - **Principes SOLID** et autres : SRP, OCP, DRY, KISS…
 
-## ⚙️ Stack Technique
+##  Stack Technique
 
 | Composant         | Technologie             |
 |-------------------|-------------------------|
@@ -29,7 +29,7 @@ Mettre en œuvre les concepts clés de l’ingénierie logicielle (architecture 
 | Versionnement     | Git + GitHub            |
 | Test              | JUnit + coroutines-test |
 
-## 📂 Structure du projet
+##  Structure du projet
 
 ```
 app/
@@ -47,7 +47,7 @@ app/
  └── MainActivity.kt
 ```
 
-## 🚀 Lancer le projet
+##  Lancer le projet
 
 ### Prérequis
 
@@ -66,7 +66,7 @@ app/
 3. Synchroniser le projet (Gradle Sync).
 4. Lancer l'application (`Run > app`).
 
-## 🔍 Fonctionnalités techniques
+##  Fonctionnalités techniques
 
 - Ajout d'une transaction avec :
   - montant, description, catégorie, type (solde/dépense), date automatique
@@ -77,15 +77,8 @@ app/
 - Architecture testable (logique extraite dans le ViewModel)
 - Données persistées localement via Room
 
-## 🧪 Tests
 
-- Tests unitaires de fonctions clés (`HomeViewModelTest.kt`)
-  - `calculateBalance`
-  - `calculateTotalByType`
-- Testés via `JUnit4`, coroutines `Dispatchers.setMain` (avec `kotlinx-coroutines-test`)
-- Résultats des tests disponibles dans `build/reports/tests/`
-
-## 📈 Améliorations futures
+##  Améliorations futures
 
 - Suppression / édition des dépenses
 - Affichage de graphiques (MPAndroidChart ou Compose Chart)
@@ -93,16 +86,9 @@ app/
 - Authentification utilisateur
 - Mode sombre
 
-## 📎 Liens utiles
-
-- 📘 Rapport PDF : [`Projet_Genie_Logiciel.pdf`](./Projet_Genie_Logiciel.pdf)
-- 📑 Guide utilisateur (inclus dans le rapport)
-- 🧾 Dépôt officiel : https://github.com/JudicaelMAKWIZA/Expense_Tracker_M/
-
 ## 🪪 Licence
 
 Ce projet est open-source sous licence MIT.
 
----
 
-> Ce dépôt représente l’implémentation complète d’un projet académique mobilisant les concepts de génie logiciel, tant au niveau de l’architecture logicielle que des pratiques de développement rigoureuses.
+> Ce dépôt représente l’implémentation complète d’un projet académique mobilisant les concepts de génie logiciel, tant au niveau de l’architecture logicielle que des pratiques de développement en génie logiciel.
