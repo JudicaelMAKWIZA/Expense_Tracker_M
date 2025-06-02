@@ -27,7 +27,6 @@ Mettre en œuvre les concepts clés de l’ingénierie logicielle (architecture 
 | Architecture      | MVVM                    |
 | Persistance       | Room + SQLite           |
 | Versionnement     | Git + GitHub            |
-| Test              | JUnit + coroutines-test |
 
 ##  Structure du projet
 
